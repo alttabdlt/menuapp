@@ -1,0 +1,50 @@
+{
+  "name": "menuapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^5.16.7",
+    "@mui/material": "^5.16.7",
+    "@radix-ui/react-checkbox": "^1.1.1",
+    "@radix-ui/react-dialog": "^1.1.1",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-scroll-area": "^1.0.0",
+    "@radix-ui/react-select": "^2.1.1",
+    "@radix-ui/react-separator": "^1.1.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.1",
+    "@types/react": "^18.3.4",
+    "@types/react-dom": "^18.3.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
+    "firebase": "^10.13.0",
+    "framer-motion": "^11.3.30",
+    "lucide-react": "^0.429.0",
+    "next": "latest",
+    "openai": "^4.56.0",
+    "react": "latest",
+    "react-day-picker": "^9.0.8",
+    "react-dom": "latest",
+    "react-hot-toast": "^2.4.1",
+    "react-responsive": "^10.0.0",
+    "tailwind-merge": "^2.5.2",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/react-day-picker": "^5.2.1",
+    "tailwindcss": "^3.4.10"
+  }
+}
