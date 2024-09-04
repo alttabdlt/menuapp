@@ -7,7 +7,7 @@ import { StarIcon, CurrencyDollarIcon, UserGroupIcon } from '@heroicons/react/24
 import { useRouter } from 'next/navigation'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth, db } from '@/lib/firebase'
-import { collection, query, getDocs, orderBy, limit, where } from 'firebase/firestore'
+import { collection, query, getDocs, orderBy, limit, where, doc, getDoc } from 'firebase/firestore'
 import Link from 'next/link'
 import { format, startOfDay, endOfDay, subDays } from 'date-fns'
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -64,6 +64,7 @@ export default function AdminDashboard() {
   const [fiveStarReviews, setFiveStarReviews] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [restaurantInfo, setRestaurantInfo] = useState({ logo: null });
 
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen(!isSidebarOpen)
@@ -154,7 +155,7 @@ export default function AdminDashboard() {
     let ratingCount = 0;
     const menuItemCounts: Record<string, number> = {};
     let maxOrder = 0;
-    let minOrder = Infinity;
+    let minOrder = 0;
     let totalReviews = 0;
     let fiveStarReviews = 0;
 
@@ -190,6 +191,23 @@ export default function AdminDashboard() {
     setFiveStarReviews(fiveStarReviews);
   }, [dateRange]);
 
+  const fetchRestaurantInfo = useCallback(async () => {
+    try {
+      const restaurantRef = doc(db, 'restaurantInfo', 'main');
+      const restaurantSnap = await getDoc(restaurantRef);
+      if (restaurantSnap.exists()) {
+        const data = restaurantSnap.data();
+        if (data && 'logo' in data) {
+          setRestaurantInfo(data as { logo: null });
+        } else {
+          console.error('Restaurant data is missing the logo field');
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching restaurant info:', error);
+    }
+  }, []);
+
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
@@ -205,6 +223,12 @@ export default function AdminDashboard() {
     }
   }, [user, dateRange, fetchSalesData, fetchFeedbackData, fetchOrderTimeData, fetchDashboardData]);
 
+  useEffect(() => {
+    if (user) {
+      fetchRestaurantInfo();
+    }
+  }, [user, fetchRestaurantInfo]);
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -214,7 +238,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       {/* Sidebar */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -290,21 +314,15 @@ export default function AdminDashboard() {
                 <Button variant="outline" size="icon" onClick={toggleSidebar} className="mr-4">
                   <Menu size={24} />
                 </Button>
-                <Image className="h-8 w-auto" src="/logo.svg" alt="Restaurant Logo" width={32} height={32} />
+                {restaurantInfo.logo ? (
+                  <Image className="h-8 w-auto" src={restaurantInfo.logo} alt="Restaurant Logo" width={32} height={32} />
+                ) : (
+                  <Image className="h-8 w-auto" src="/logo.svg" alt="Restaurant Logo" width={32} height={32} />
+                )}
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <a href="#" className="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                  Dashboard
-                </a>
+                {/* You can add other navigation items here if needed */}
               </div>
-            </div>
-            <div className="hidden sm:ml-6 sm:flex sm:items-center">
-              <button type="button" className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                <span className="sr-only">View notifications</span>
-                <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-              </button>
             </div>
           </div>
         </div>

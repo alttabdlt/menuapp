@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react'
-import { PlusCircle, Edit, Eye, ShoppingCart, Menu as MenuIcon, Settings, ArrowRightLeft, ChevronDown, ChevronUp, Search, X, Trash2, Sparkles } from 'lucide-react'
+import { PlusCircle, Edit, Eye, ShoppingCart, Menu as MenuIcon, Settings, ArrowRightLeft, ChevronDown, ChevronUp, Search, X, Trash2, Sparkles, Utensils, MonitorPlay, TableProperties } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -34,6 +34,7 @@ export default function Component() {
   const [logo, setLogo] = useState<string | null>(null)
   const [showDeployConfirmation, setShowDeployConfirmation] = useState(false)
   const [restaurantName, setRestaurantName] = useState('');
+  const [isDeploying, setIsDeploying] = useState(false);
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -101,6 +102,7 @@ export default function Component() {
 
   const handleDeployConfirm = async () => {
     setShowDeployConfirmation(false);
+    setIsDeploying(true);
     try {
       // Upload menu items
       for (const item of menuItems) {
@@ -145,18 +147,32 @@ export default function Component() {
         logo: logo
       }, { merge: true });
 
-      console.log('Deployment successful, setting isDeployed to true');
-      setIsDeployed(true);
+      // Clean up menu items
+      const deployedItemsSnapshot = await getDocs(collection(db, 'deployedMenuItems'));
+      const deployedItemIds = new Set(menuItems.map(item => item.id));
       
-      setTimeout(() => {
-        console.log('Resetting isDeployed to false');
-        setIsDeployed(false);
-      }, 2000);
+      for (const doc of deployedItemsSnapshot.docs) {
+        if (!deployedItemIds.has(doc.id)) {
+          await deleteDoc(doc.ref);
+        }
+      }
+
+      // Clean up categories
+      const deployedCategoriesSnapshot = await getDocs(collection(db, 'deployedCategories'));
+      const deployedCategoryIds = new Set(categories.map(category => category.id));
       
+      for (const doc of deployedCategoriesSnapshot.docs) {
+        if (!deployedCategoryIds.has(doc.id)) {
+          await deleteDoc(doc.ref);
+        }
+      }
+
       toast.success('Menu deployed successfully');
     } catch (error) {
       console.error('Error deploying menu:', error);
       toast.error('Failed to deploy menu. Please try again.');
+    } finally {
+      setIsDeploying(false);
     }
   };
 
@@ -317,24 +333,31 @@ export default function Component() {
                 <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2">
                   <X size={20} />
                 </Button>
-                <h2 className="text-xl font-semibold">Admin Management</h2>
+                <h2 className="text-xl font-semibold">Menu Management</h2>
               </div>
               <nav>
                 <ul className="space-y-4">
                   <li>
-                    <Button onClick={() => {
-                      console.log('Deploy Menu button clicked');
-                      deployMenu();
-                    }} className="w-full justify-start">
-                      <ArrowRightLeft size={20} className="mr-2" />
-                      Deploy Menu
+                    <Button asChild variant="ghost" className="w-full justify-start">
+                      <Link href="/kds">
+                        <MonitorPlay size={20} className="mr-2" />
+                        Kitchen Display System
+                      </Link>
                     </Button>
                   </li>
                   <li>
-                    <Button asChild variant="secondary" className="w-full justify-start">
+                    <Button asChild variant="ghost" className="w-full justify-start">
+                      <Link href="/tablemanagement">
+                        <TableProperties size={20} className="mr-2" />
+                        Tables and QR Codes
+                      </Link>
+                    </Button>
+                  </li>
+                  <li>
+                    <Button asChild variant="ghost" className="w-full justify-start">
                       <Link href="/menu/live">
                         <Eye size={20} className="mr-2" />
-                        View Live Menu
+                        Live Menu
                       </Link>
                     </Button>
                   </li>
@@ -349,10 +372,21 @@ export default function Component() {
                   </li>
                   <li>
                     <Button asChild variant="ghost" className="w-full justify-start">
-                      <Link href="/kds">
-                        <Eye size={20} className="mr-2" />
-                        Go to KDS
+                      <Link href="/">
+                        <ArrowRightLeft size={20} className="mr-2" />
+                        Back to Admin
                       </Link>
+                    </Button>
+                  </li>
+                  <li className="mt-auto">
+                    <Button 
+                      variant="default" 
+                      className="w-full justify-start"
+                      onClick={deployMenu}
+                      disabled={isDeploying}
+                    >
+                      <ArrowRightLeft size={20} className="mr-2" />
+                      {isDeploying ? 'Deploying...' : 'Deploy to Live'}
                     </Button>
                   </li>
                 </ul>
@@ -382,7 +416,7 @@ export default function Component() {
             <Button variant="outline" size="icon" onClick={toggleSidebar} className="mr-4">
               <MenuIcon size={24} />
             </Button>
-            <h1 className="text-3xl font-bold">Admin Management</h1>
+            <h1 className="text-3xl font-bold">Menu Management</h1>
           </div>
         </div>
 
