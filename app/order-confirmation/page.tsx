@@ -69,7 +69,7 @@ export default function OrderConfirmationPage() {
       // Clean up the listener when the component unmounts
       return () => unsubscribe();
     }
-  }, []);
+  }, [orderNumber]); // Add orderNumber to the dependency array
 
   const handleRequestAssistance = () => {
     toast({
