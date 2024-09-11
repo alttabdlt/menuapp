@@ -6,6 +6,7 @@ import { db } from '../../lib/firebase'
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where } from 'firebase/firestore'
 import QRCode from 'qrcode'
 import { AlertDialog } from "../../components/ui/alert-dialog"
+import Image from 'next/image'
 
 type Table = {
   id: string
@@ -226,7 +227,12 @@ export default function ManageTablesPage() {
             <h2 className="text-xl font-bold mb-4">QR Code for Table {selectedTable.number}</h2>
             <div className="flex justify-center mb-4">
               {selectedTable.qrCode && (
-                <img src={selectedTable.qrCode} alt={`QR Code for Table ${selectedTable.number}`} />
+                <Image 
+                  src={selectedTable.qrCode} 
+                  alt={`QR Code for Table ${selectedTable.number}`}
+                  width={200}
+                  height={200}
+                />
               )}
             </div>
             <button
