@@ -7,6 +7,9 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where } 
 import QRCode from 'qrcode'
 import { AlertDialog } from "../../components/ui/alert-dialog"
 import Image from 'next/image'
+import { Button } from 'react-day-picker'
+import { Button as CustomButton } from '../../components/ui/button'
+import Link from 'next/link'  // Add this import
 
 type Table = {
   id: string
@@ -259,6 +262,11 @@ export default function ManageTablesPage() {
         message={alertMessage}
         confirmText="OK"
       />
+      <Link href="/" passHref>
+        <CustomButton variant="outline" className="absolute top-4 right-4">
+          Go to Admin
+        </CustomButton>
+      </Link>
     </div>
   )
 }

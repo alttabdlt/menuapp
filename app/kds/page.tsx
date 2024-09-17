@@ -341,7 +341,7 @@ export default function Component() {
         message={`Are you sure you want to mark "${itemToToggle?.name}" as ${itemToToggle?.completed ? 'incomplete' : 'complete'}?`}
       />
 
-      <Link href="/menu" passHref>
+      <Link href="/" passHref>
         <Button variant="outline" className="absolute top-4 right-4">
           Go to Admin
         </Button>
